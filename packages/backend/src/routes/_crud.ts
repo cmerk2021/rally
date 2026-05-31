@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import type { ZodSchema } from "zod";
+import { ClientResponseError } from "pocketbase";
 import { getPocketBase } from "../pocketbase.js";
 import { recordTimelineEntry, deleteTimelineEntriesFor, type TimelineEntityType } from "../services/timeline.service.js";
 
@@ -53,12 +54,38 @@ export function registerCrud(app: FastifyInstance, opts: CrudOptions): void {
     const customFilter = opts.buildListFilter?.(req);
     const filter = [q.filter, customFilter].filter(Boolean).join(" && ");
     const pb = await getPocketBase();
-    const result = await pb.collection(opts.collection).getList(page, perPage, {
-      sort,
-      filter: filter || undefined,
-      ...expandQ,
-    });
-    reply.send(result);
+    const listOpts: Record<string, unknown> = { sort };
+    if (filter) listOpts.filter = filter;
+    if (opts.expand) listOpts.expand = opts.expand;
+    try {
+      const result = await pb.collection(opts.collection).getList(page, perPage, listOpts);
+      reply.send(result);
+    } catch (err) {
+      // If PB rejected the expand (e.g. relation field missing on legacy schema), retry without it.
+      if (opts.expand && err instanceof ClientResponseError && err.status === 400) {
+        app.log.warn(
+          { collection: opts.collection, expand: opts.expand, message: err.message, data: err.response?.data },
+          "list with expand returned 400, retrying without expand",
+        );
+        const retryOpts = { ...listOpts };
+        delete retryOpts.expand;
+        const result = await pb.collection(opts.collection).getList(page, perPage, retryOpts);
+        reply.send(result);
+        return;
+      }
+      app.log.error(
+        {
+          collection: opts.collection,
+          listOpts,
+          page,
+          perPage,
+          err: err instanceof Error ? { message: err.message, name: err.name } : err,
+          response: (err as { response?: unknown }).response,
+        },
+        "list failed",
+      );
+      throw err;
+    }
   });
 
   app.post("/", async (req: FastifyRequest, reply: FastifyReply) => {
