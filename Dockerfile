@@ -13,8 +13,6 @@ RUN --mount=type=cache,target=/root/.npm npm ci --workspaces --include-workspace
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages/backend/node_modules ./packages/backend/node_modules
-COPY --from=deps /app/packages/frontend/node_modules ./packages/frontend/node_modules
 COPY . .
 RUN npm run build --workspace packages/backend
 RUN npm run build --workspace packages/frontend
