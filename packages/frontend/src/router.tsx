@@ -4,7 +4,6 @@ import {
   createRouter,
   redirect,
   Outlet,
-  Navigate,
 } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
 import { useAuthStore } from "@/stores/auth.store";
@@ -47,14 +46,15 @@ import { SettingsAboutPage } from "@/pages/settings/SettingsAboutPage";
 const rootRoute = createRootRoute({ component: () => <Outlet /> });
 
 async function ensureSetup() {
+  let status: { setupRequired: boolean };
   try {
-    const status = await authApi.setupStatus();
-    if (status.setupRequired) {
-      throw redirect({ to: "/onboarding" });
-    }
-  } catch (err) {
-    if ((err as { isRedirect?: boolean }).isRedirect) throw err;
-    // ignore failure (server may not be reachable yet)
+    status = await authApi.setupStatus();
+  } catch {
+    // Server unreachable — let the route load and surface the error.
+    return;
+  }
+  if (status.setupRequired) {
+    throw redirect({ to: "/onboarding" });
   }
 }
 
@@ -91,7 +91,15 @@ const appLayoutRoute = createRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: () => <Navigate to="/dashboard" />,
+  beforeLoad: async () => {
+    await ensureSetup();
+    const { token, isAuthenticated } = useAuthStore.getState();
+    if (!token || !isAuthenticated) {
+      throw redirect({ to: "/login" });
+    }
+    throw redirect({ to: "/dashboard" });
+  },
+  component: () => null,
 });
 
 const dashboardRoute = createRoute({
