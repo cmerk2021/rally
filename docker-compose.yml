@@ -4,7 +4,7 @@ services:
     container_name: rally-pocketbase
     restart: unless-stopped
     ports:
-      - "8090:8090"
+      - "${POCKETBASE_PORT:-8090}:8090"
     volumes:
       - pocketbase_data:/pb_data
     healthcheck:
@@ -22,7 +22,7 @@ services:
       pocketbase:
         condition: service_healthy
     ports:
-      - "3000:3000"
+      - "${RALLY_PORT:-3000}:3000"
     environment:
       NODE_ENV: production
       PORT: 3000

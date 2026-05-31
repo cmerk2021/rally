@@ -84,16 +84,6 @@ async function buildServer() {
       prefix: "/",
       decorateReply: true,
     });
-    app.setNotFoundHandler((req, reply) => {
-      if (req.url.startsWith("/api")) {
-        reply.code(404).send({
-          error: { code: "not_found", message: `Route ${req.method} ${req.url} not found` },
-        });
-        return;
-      }
-      // SPA fallback
-      reply.type("text/html").sendFile("index.html");
-    });
     app.log.info(`[static] Serving frontend from ${publicDir}`);
   } else {
     app.log.info(`[static] No public dir at ${publicDir} — frontend served separately`);

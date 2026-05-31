@@ -50,7 +50,14 @@ export default fp(async function errorHandler(app: FastifyInstance) {
       });
       return;
     }
-    // For non-api routes, the static handler / SPA fallback handles it
-    reply.callNotFound();
+    // SPA fallback: serve index.html for any non-API route so client-side router can handle it.
+    // Requires @fastify/static to be registered (decorateReply: true).
+    if (typeof reply.sendFile === "function") {
+      reply.type("text/html").sendFile("index.html");
+      return;
+    }
+    reply.code(404).send({
+      error: { code: "not_found", message: `Route ${req.method} ${req.url} not found` },
+    });
   });
 });
