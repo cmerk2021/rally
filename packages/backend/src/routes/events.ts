@@ -15,15 +15,29 @@ export async function registerEventsRoutes(app: FastifyInstance): Promise<void> 
     const q = req.query as Record<string, string | undefined>;
     const page = Math.max(1, Number(q.page) || 1);
     const perPage = Math.min(100, Math.max(1, Number(q.perPage) || 50));
+    const sort = q.sort || "-received_at";
     const parts: string[] = [];
+    if (q.filter) parts.push(`(${q.filter})`);
     if (q.status) parts.push(`status="${q.status}"`);
     if (q.source) parts.push(`source="${q.source}"`);
+    const filter = parts.join(" && ") || undefined;
     const pb = await getPocketBase();
-    const result = await pb.collection("events").getList(page, perPage, {
-      filter: parts.join(" && ") || undefined,
-      sort: "-received_at",
-    });
-    reply.send(result);
+    try {
+      const result = await pb.collection("events").getList(page, perPage, { filter, sort });
+      reply.send(result);
+    } catch (err) {
+      app.log.error(
+        {
+          collection: "events",
+          filter,
+          sort,
+          err: err instanceof Error ? { message: err.message, name: err.name } : err,
+          response: (err as { response?: unknown }).response,
+        },
+        "events list failed",
+      );
+      throw err;
+    }
   });
 
   app.get("/:id", async (req, reply) => {
