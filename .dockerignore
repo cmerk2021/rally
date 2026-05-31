@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+packages/*/dist
+packages/*/build
+.git
+.gitignore
+.env
+.env.*
+*.log
+.DS_Store
+Dockerfile
+docker-compose.yml
+README.md
+pb_data
+pb_migrations

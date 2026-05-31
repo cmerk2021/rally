@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 71% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 224 71% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 83% 53%;
+    --radius: 0.5rem;
+
+    --color-project: 142 71% 45%;
+    --color-task: 38 92% 50%;
+    --color-change: 221 83% 53%;
+    --color-service: 262 83% 58%;
+    --color-asset: 199 89% 48%;
+    --color-incident: 0 84% 60%;
+    --color-doc: 47 96% 53%;
+    --color-decision: 168 76% 42%;
+    --color-maintenance: 217 91% 60%;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --card: 224 71% 7%;
+    --card-foreground: 213 31% 91%;
+    --popover: 224 71% 7%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 16% 57%;
+    --accent: 216 34% 17%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 63% 41%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 221 83% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  html, body, #root {
+    height: 100%;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+/* Tiptap editor */
+.ProseMirror {
+  @apply outline-none min-h-[200px];
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+  height: 0;
+}
+.ProseMirror h1 {
+  @apply text-3xl font-bold mt-6 mb-3;
+}
+.ProseMirror h2 {
+  @apply text-2xl font-bold mt-5 mb-2;
+}
+.ProseMirror h3 {
+  @apply text-xl font-semibold mt-4 mb-2;
+}
+.ProseMirror p {
+  @apply my-2 leading-relaxed;
+}
+.ProseMirror ul {
+  @apply list-disc pl-6 my-2;
+}
+.ProseMirror ol {
+  @apply list-decimal pl-6 my-2;
+}
+.ProseMirror blockquote {
+  @apply border-l-4 border-border pl-4 italic text-muted-foreground my-2;
+}
+.ProseMirror code {
+  @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
+}
+.ProseMirror pre {
+  @apply bg-secondary p-3 rounded-md my-3 overflow-x-auto;
+}
+.ProseMirror pre code {
+  @apply bg-transparent p-0;
+}
+.ProseMirror a {
+  @apply text-primary underline underline-offset-2 hover:text-primary/80;
+}
+.ProseMirror table {
+  @apply border-collapse w-full my-3;
+}
+.ProseMirror th, .ProseMirror td {
+  @apply border border-border px-2 py-1;
+}
+.ProseMirror th {
+  @apply bg-muted font-semibold;
+}
+.ProseMirror ul[data-type="taskList"] {
+  @apply list-none pl-0;
+}
+.ProseMirror ul[data-type="taskList"] li {
+  @apply flex items-start gap-2;
+}
+.ProseMirror ul[data-type="taskList"] li > label {
+  @apply mt-1 flex-shrink-0;
+}
+.entity-mention {
+  @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/15 text-primary border border-primary/20 cursor-pointer hover:bg-primary/25;
+}

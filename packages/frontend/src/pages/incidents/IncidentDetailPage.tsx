@@ -1,0 +1,1 @@
+export { IncidentDetailPage } from "./IncidentsListPage";

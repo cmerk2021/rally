@@ -1,0 +1,41 @@
+services:
+  pocketbase:
+    image: ghcr.io/muchobien/pocketbase:0.22.21
+    container_name: rally-pocketbase
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - pocketbase_data:/pb_data
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:8090/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  rally:
+    build: .
+    container_name: rally
+    restart: unless-stopped
+    depends_on:
+      pocketbase:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      POCKETBASE_URL: http://pocketbase:8090
+      POCKETBASE_ADMIN_EMAIL: ${POCKETBASE_ADMIN_EMAIL:-admin@rally.local}
+      POCKETBASE_ADMIN_PASSWORD: ${POCKETBASE_ADMIN_PASSWORD:-changeme-please-12345}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      AI_ENDPOINT: ${AI_ENDPOINT:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+    volumes:
+      - rally_backups:/app/backups
+
+volumes:
+  pocketbase_data:
+  rally_backups:
