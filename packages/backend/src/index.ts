@@ -39,6 +39,7 @@ async function buildServer() {
             },
     },
     bodyLimit: 10 * 1024 * 1024,
+    ignoreTrailingSlash: true,
   });
 
   await app.register(corsPlugin);

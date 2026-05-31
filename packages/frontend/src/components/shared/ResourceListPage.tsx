@@ -63,7 +63,7 @@ export function ResourceListPage<T extends { id: string }>({
     return parts.join(" && ") || undefined;
   })();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: [queryKey, { query, extraFilter }],
     queryFn: () => fetchList({ filter: filterStr, perPage: 200, sort: defaultSort }),
   });
@@ -98,6 +98,15 @@ export function ResourceListPage<T extends { id: string }>({
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
         </div>
+      ) : error ? (
+        <Card>
+          <CardContent className="p-6 text-sm text-destructive">
+            <div className="font-medium mb-1">Failed to load.</div>
+            <div className="text-xs text-muted-foreground break-all">
+              {((error as { response?: { data?: { error?: { message?: string } } } }).response?.data?.error?.message) ?? (error as Error).message}
+            </div>
+          </CardContent>
+        </Card>
       ) : (data?.items.length ?? 0) === 0 ? (
         <EmptyState
           title={emptyTitle ?? "Nothing here yet"}
